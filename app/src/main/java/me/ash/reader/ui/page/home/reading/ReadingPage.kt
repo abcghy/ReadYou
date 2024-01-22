@@ -8,6 +8,7 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.SideEffect
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
@@ -25,6 +26,8 @@ import me.ash.reader.ui.page.home.HomeViewModel
 fun ReadingPage(
     navController: NavHostController,
     homeViewModel: HomeViewModel,
+    isExpandedScreen: Boolean,
+    articleId: String? = null,
     readingViewModel: ReadingViewModel = hiltViewModel(),
 ) {
     val tonalElevation = LocalReadingPageTonalElevation.current
@@ -39,9 +42,11 @@ fun ReadingPage(
     val pagingItems = homeUiState.pagingData.collectAsLazyPagingItems().itemSnapshotList
     readingViewModel.recorderNextArticle(pagingItems)
 
-    LaunchedEffect(Unit) {
+    LaunchedEffect(articleId) {
         navController.currentBackStackEntryFlow.collect {
-            it.arguments?.getString("articleId")?.let { articleId ->
+            // TODO
+            val getArticleId : String? = articleId ?: it.arguments?.getString("articleId")
+            getArticleId?.let { articleId ->
                 if (readingUiState.articleWithFeed?.article?.id != articleId) {
                     readingViewModel.initData(articleId)
                 }
@@ -71,6 +76,7 @@ fun ReadingPage(
                     isShow = isShowToolBar,
                     title = readingUiState.articleWithFeed?.article?.title,
                     link = readingUiState.articleWithFeed?.article?.link,
+                    isExpandedScreen = isExpandedScreen,
                     onClose = {
                         navController.popBackStack()
                     },
