@@ -142,7 +142,7 @@ fun HomeEntry(
                 )
             }
             forwardAndBackwardComposable(route = "${RouteName.READING}/{articleId}") {
-                ReadingPage(navController = navController, homeViewModel = homeViewModel, isExpandedScreen = false)
+                ReadingPage(navController = navController, homeViewModel = homeViewModel, isExpandedScreen = isExpandedScreen)
             }
 
             // Settings

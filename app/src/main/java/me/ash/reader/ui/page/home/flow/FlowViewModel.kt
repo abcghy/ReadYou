@@ -8,6 +8,7 @@ import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import me.ash.reader.domain.model.general.MarkAsReadConditions
 import me.ash.reader.domain.service.RssService
@@ -46,9 +47,16 @@ class FlowViewModel @Inject constructor(
             )
         }
     }
+
+    fun openArticle() {
+        _flowUiState.update {
+            it.copy(isArticleOpen = true)
+        }
+    }
 }
 
 data class FlowUiState(
+    val isArticleOpen: Boolean = false,
     val filterImportant: Int = 0,
     val listState: LazyListState = LazyListState(),
     val isBack: Boolean = false,

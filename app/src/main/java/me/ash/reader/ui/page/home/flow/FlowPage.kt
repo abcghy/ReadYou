@@ -78,7 +78,9 @@ fun FlowPage(
     LaunchedEffect(onSearch) {
         snapshotFlow { onSearch }.collect {
             if (it) {
+                Log.e("TESTTTFFF", "before")
                 delay(100)  // ???
+                Log.e("TESTTTFFF", "after")
                 focusRequester.requestFocus()
             } else {
                 keyboardController?.hide()
@@ -239,6 +241,7 @@ fun FlowPage(
                             Spacer(modifier = Modifier.height((56 + 24 + 10).dp))
                         }
                     }
+                    Log.e("TESTTTFFF", "pagingItems: ${pagingItems.itemCount}")
                     ArticleList(
                         pagingItems = pagingItems,
                         isFilterUnread = filterUiState.filter == Filter.Unread,
@@ -247,6 +250,7 @@ fun FlowPage(
                         articleListTonalElevation = articleListTonalElevation.value,
                         onClick =  {
                             onSearch = false
+                            flowViewModel.openArticle()
                             if (onArticleClick == null) {
                                 navController.navigate("${RouteName.READING}/${it.article.id}") {
                                     launchSingleTop = true
@@ -298,10 +302,12 @@ fun FlowWithArticleDetailsScreen(
     navController: NavHostController,
     isExpandedScreen: Boolean,
     homeViewModel: HomeViewModel,
+    flowViewModel: FlowViewModel,
 ) {
     var articleId : String? by remember {
         mutableStateOf(null)
     }
+
     Row {
         FlowPage(
             navController = navController,
@@ -310,7 +316,8 @@ fun FlowWithArticleDetailsScreen(
                 articleId = it.article.id
                 Log.e("TESTTTFFF", "articleId: $articleId")
             },
-            homeViewModel = homeViewModel
+            homeViewModel = homeViewModel,
+            flowViewModel = flowViewModel,
         )
         ReadingPage(navController = navController, homeViewModel = homeViewModel, isExpandedScreen = isExpandedScreen, articleId = articleId)
     }
