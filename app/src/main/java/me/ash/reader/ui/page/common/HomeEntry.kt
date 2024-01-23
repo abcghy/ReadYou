@@ -65,16 +65,17 @@ fun HomeEntry(
             // Other initial pages
         }
 
-        homeViewModel.changeFilter(
-            filterUiState.copy(
-                filter = when (context.initialFilter) {
-                    0 -> Filter.Starred
-                    1 -> Filter.Unread
-                    2 -> Filter.All
-                    else -> Filter.All
-                }
-            )
+        val changedFilterUiState = filterUiState.copy(
+            filter = when (context.initialFilter) {
+                0 -> Filter.Starred
+                1 -> Filter.Unread
+                2 -> Filter.All
+                else -> Filter.All
+            }
         )
+        if (changedFilterUiState != filterUiState) {
+            homeViewModel.changeFilter(changedFilterUiState)
+        }
 
         // This is finally
         navController.currentBackStackEntryFlow.collectLatest {
