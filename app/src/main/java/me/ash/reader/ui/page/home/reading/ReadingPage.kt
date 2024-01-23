@@ -30,6 +30,8 @@ import me.ash.reader.ui.page.home.HomeViewModel
 fun ReadingPage(
     navController: NavHostController,
     homeViewModel: HomeViewModel,
+    isExpandedScreen: Boolean,
+    articleId: String? = null,
     readingViewModel: ReadingViewModel = hiltViewModel(),
 ) {
     val tonalElevation = LocalReadingPageTonalElevation.current
@@ -44,9 +46,10 @@ fun ReadingPage(
 
     val pagingItems = homeUiState.pagingData.collectAsLazyPagingItems().itemSnapshotList
 
-    LaunchedEffect(Unit) {
+    LaunchedEffect(articleId) {
         navController.currentBackStackEntryFlow.collect {
-            it.arguments?.getString("articleId")?.let { articleId ->
+            val getArticleId : String? = articleId ?: it.arguments?.getString("articleId")
+            getArticleId?.let { articleId ->
                 if (readingUiState.articleId != articleId) {
                     readingViewModel.initData(articleId)
                 }
@@ -78,6 +81,7 @@ fun ReadingPage(
                     isShow = isShowToolBar,
                     title = readerState.title,
                     link = readerState.link,
+                    isExpandedScreen = isExpandedScreen,
                     onClose = {
                         navController.popBackStack()
                     },

@@ -23,7 +23,7 @@ import androidx.work.WorkInfo
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import me.ash.reader.R
-import me.ash.reader.domain.model.article.ArticleFlowItem
+import me.ash.reader.domain.model.article.ArticleWithFeed
 import me.ash.reader.domain.model.general.Filter
 import me.ash.reader.domain.model.general.MarkAsReadConditions
 import me.ash.reader.infrastructure.preference.*
@@ -32,6 +32,7 @@ import me.ash.reader.ui.component.base.*
 import me.ash.reader.ui.ext.collectAsStateValue
 import me.ash.reader.ui.page.common.RouteName
 import me.ash.reader.ui.page.home.HomeViewModel
+import me.ash.reader.ui.page.home.reading.ReadingPage
 
 @OptIn(
     com.google.accompanist.pager.ExperimentalPagerApi::class,
@@ -41,6 +42,8 @@ import me.ash.reader.ui.page.home.HomeViewModel
 fun FlowPage(
     navController: NavHostController,
     flowViewModel: FlowViewModel = hiltViewModel(),
+    isExpandedScreen: Boolean,
+    onArticleClick: ((ArticleWithFeed) -> Unit)? = null,
     homeViewModel: HomeViewModel,
 ) {
     val keyboardController = LocalSoftwareKeyboardController.current
@@ -97,7 +100,9 @@ fun FlowPage(
         onSearch = false
     }
 
+    val width = if (isExpandedScreen) Modifier.width(334.dp) else Modifier
     RYScaffold(
+        modifier = width,
         topBarTonalElevation = topBarTonalElevation.value.dp,
         containerTonalElevation = articleListTonalElevation.value.dp,
         navigationIcon = {
@@ -240,8 +245,13 @@ fun FlowPage(
                         articleListTonalElevation = articleListTonalElevation.value,
                         onClick =  {
                             onSearch = false
-                            navController.navigate("${RouteName.READING}/${it.article.id}") {
-                                launchSingleTop = true
+                            flowViewModel.openArticle()
+                            if (onArticleClick == null) {
+                                navController.navigate("${RouteName.READING}/${it.article.id}") {
+                                    launchSingleTop = true
+                                }
+                            } else {
+                                onArticleClick(it)
                             }
                         }
                     ) {
@@ -280,4 +290,29 @@ fun FlowPage(
             }
         }
     )
+}
+
+@Composable
+fun FlowWithArticleDetailsScreen(
+    navController: NavHostController,
+    isExpandedScreen: Boolean,
+    homeViewModel: HomeViewModel,
+    flowViewModel: FlowViewModel,
+) {
+    var articleId : String? by remember {
+        mutableStateOf(null)
+    }
+
+    Row {
+        FlowPage(
+            navController = navController,
+            isExpandedScreen = isExpandedScreen,
+            onArticleClick = {
+                articleId = it.article.id
+            },
+            homeViewModel = homeViewModel,
+            flowViewModel = flowViewModel,
+        )
+        ReadingPage(navController = navController, homeViewModel = homeViewModel, isExpandedScreen = isExpandedScreen, articleId = articleId)
+    }
 }
